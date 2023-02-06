@@ -82,7 +82,7 @@ const commands = (client, message) => {
     const phoneNumber = message.from === process.env.PHONE_NUMBER ? message.to : message.from;
     switch (firstWord) {
 
-        case iaCommands.davinci3:
+        case iaCommands.clearContex:
             contextMap.delete(phoneNumber);
             client.sendText(phoneNumber, 'Context deleted :)');
             break;
