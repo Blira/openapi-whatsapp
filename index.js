@@ -82,6 +82,13 @@ const getDalleResponse = async (clientText) => {
 
 const commands = (client, message) => {
     const phoneNumber = message.from
+
+
+    if (message.text === '/cc') {
+        contextMap.delete(phoneNumber)
+        client.sendText(phoneNumber, 'Context deleted :)')
+    }
+
     getDavinciResponse(phoneNumber, message.text).then((response) => {
 
         console.log(11)
