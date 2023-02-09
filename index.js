@@ -70,7 +70,7 @@ const getDalleResponse = async (clientText) => {
 const commands = (client, message) => {
     console.log(message)
     const iaCommands = {
-        // davinci3: "/bot",
+        davinci3: "/bot",
         dalle: "/img",
         clearContex: "/cc"
     }
@@ -84,12 +84,12 @@ const commands = (client, message) => {
             client.sendText(phoneNumber, 'Context deleted :)');
             break;
 
-        // case iaCommands.davinci3:
-        //     const question = message.text.substring(message.text.indexOf(" "));
-        //     getDavinciResponse(phoneNumber, question).then((response) => {
-        //         client.sendText(phoneNumber, response)
-        //     })
-        //     break;
+        case iaCommands.davinci3:
+            const question = message.text.substring(message.text.indexOf(" "));
+            getDavinciResponse(phoneNumber, question).then((response) => {
+                client.sendText(phoneNumber, response)
+            })
+            break;
 
         case iaCommands.dalle:
             const imgDescription = message.text.substring(message.text.indexOf(" "));
@@ -104,8 +104,8 @@ const commands = (client, message) => {
             break;
 
         default:
-            const question = message.text;
-            getDavinciResponse(phoneNumber, question).then((response) => {
+            const q = message.text;
+            getDavinciResponse(phoneNumber, q).then((response) => {
                 client.sendText(phoneNumber, response)
             })
             break;
