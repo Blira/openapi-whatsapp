@@ -68,6 +68,7 @@ const getDalleResponse = async (clientText) => {
 }
 
 const commands = (client, message) => {
+    console.log(message)
     const iaCommands = {
         // davinci3: "/bot",
         dalle: "/img",
