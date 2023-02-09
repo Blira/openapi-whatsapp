@@ -118,5 +118,6 @@ const commands = (client, message) => {
 }
 
 async function start(client) {
-    client.onAnyMessage((message) => commands(client, message));
+    // client.onAnyMessage((message) => commands(client, message));
+    client.onAnyMessage(console.log(message));
 }
