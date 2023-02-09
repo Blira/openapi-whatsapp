@@ -87,7 +87,7 @@ const commands = (client, message) => {
         client.sendText(phoneNumber, 'Context deleted :)')
         return
     }
-    else if (message.tex.substring(0, 5) === '/img ') {
+    else if (message.text.substring(0, 5) === '/img ') {
         console.log('IMAGEM')
         const imgDescription = message.text.substring(5)
         console.log('DESC: ', imgDescription)
