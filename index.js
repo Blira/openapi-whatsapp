@@ -97,7 +97,6 @@ const commands = (client, message) => {
                 phoneNumber,
                 imgUrl,
                 imgDescription,
-                'Imagem gerada pela IA DALL-E 🤖'
             )
             console.log('SENT')
         })
