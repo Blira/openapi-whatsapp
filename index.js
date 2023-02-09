@@ -82,22 +82,24 @@ const getDalleResponse = async (clientText) => {
 
 const commands = (client, message) => {
     const phoneNumber = message.from
-
-
     if (message.text === '/cc') {
         contextMap.delete(phoneNumber)
         client.sendText(phoneNumber, 'Context deleted :)')
         return
     }
-    else if (message.tex.substring(0,5) === '/img ') {
+    else if (message.tex.substring(0, 5) === '/img ') {
+        console.log('IMAGEM')
         const imgDescription = message.text.substring(5)
+        console.log('DESC: ', imgDescription)
         getDalleResponse(imgDescription, message).then((imgUrl) => {
+            console.log('GENERATED')
             client.sendImage(
                 phoneNumber,
                 imgUrl,
                 imgDescription,
                 'Imagem gerada pela IA DALL-E 🤖'
             )
+            console.log('SENT')
         })
     }
 
