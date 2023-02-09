@@ -25,8 +25,11 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration)
 
 const getDavinciResponse = async (phoneNumber, clientText) => {
+    console.log(1)
     const parsedClientText = `${clientText}\nAI:`
+    console.log(2)
     const contextWithClientText = `${contextMap.get(phoneNumber) || defaultContext + "\nHuman: "}${parsedClientText}`
+    console.log(3)
     const options = {
         model: "text-davinci-003",
         prompt: contextWithClientText,
@@ -35,17 +38,27 @@ const getDavinciResponse = async (phoneNumber, clientText) => {
         stop: [" Human:", " AI:"],
     }
 
+    console.log(4)
     try {
+        console.log(5)
         const response = await openai.createCompletion(options)
+        console.log(6)
         let apiTextResponse = ""
+        console.log(7)
         console.log(response.data)
+        console.log(8)
         response.data.choices.forEach(({ text }) => {
             apiTextResponse += text
         })
+        console.log(9)
         const parsedApiTextResponse = `${apiTextResponse.trim()}`
+        console.log(1)
         const newContext = `${contextWithClientText}${parsedApiTextResponse}\nHuman: `
+        console.log(2)
         contextMap.set(phoneNumber, newContext)
+        console.log(3)
         console.log('FINAL CONTEXT --> ', contextMap.get(phoneNumber))
+        console.log(4)
         return parsedApiTextResponse
     } catch (e) {
         return `❌ OpenAI Response Error: ${e.response.data.error.message}`
@@ -70,7 +83,12 @@ const getDalleResponse = async (clientText) => {
 const commands = (client, message) => {
     const phoneNumber = message.from
     getDavinciResponse(phoneNumber, message.text).then((response) => {
-        client.sendText(phoneNumber, response)
+
+        console.log(11)
+        client.sendText(phoneNumber, response).then(() =>
+
+            console.log(99)
+        )
     })
 
     // const iaCommands = {
@@ -119,6 +137,9 @@ const commands = (client, message) => {
 async function start(client) {
     client.onAnyMessage((message) => {
         console.log(message)
-        commands(client, message)
+        if (message.type === 'chat' && !message.isGroup) {
+            console.log('OK')
+            commands(client, message)
+        } 
     })
 }
