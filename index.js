@@ -87,6 +87,7 @@ const commands = (client, message) => {
     if (message.text === '/cc') {
         contextMap.delete(phoneNumber)
         client.sendText(phoneNumber, 'Context deleted :)')
+        return
     }
 
     getDavinciResponse(phoneNumber, message.text).then((response) => {
