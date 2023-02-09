@@ -14,18 +14,18 @@ create({
 })
     .then((client) => start(client))
     .catch((erro) => {
-        console.log(erro);
-    });
+        console.log(erro)
+    })
 
 const configuration = new Configuration({
     organization: process.env.ORGANIZATION_ID,
     apiKey: process.env.OPENAI_KEY,
-});
+})
 
-const openai = new OpenAIApi(configuration);
+const openai = new OpenAIApi(configuration)
 
 const getDavinciResponse = async (phoneNumber, clientText) => {
-    const parsedClientText = `${clientText}\nAI:`;
+    const parsedClientText = `${clientText}\nAI:`
     const contextWithClientText = `${contextMap.get(phoneNumber) || defaultContext + "\nHuman: "}${parsedClientText}`
     const options = {
         model: "text-davinci-003",
@@ -45,8 +45,8 @@ const getDavinciResponse = async (phoneNumber, clientText) => {
         const parsedApiTextResponse = `${apiTextResponse.trim()}`
         const newContext = `${contextWithClientText}${parsedApiTextResponse}\nHuman: `
         contextMap.set(phoneNumber, newContext)
-        console.log('FINAL CONTEXT --> ', contextMap.get(phoneNumber));
-        return parsedApiTextResponse;
+        console.log('FINAL CONTEXT --> ', contextMap.get(phoneNumber))
+        return parsedApiTextResponse
     } catch (e) {
         return `❌ OpenAI Response Error: ${e.response.data.error.message}`
     }
@@ -60,7 +60,7 @@ const getDalleResponse = async (clientText) => {
     }
 
     try {
-        const response = await openai.createImage(options);
+        const response = await openai.createImage(options)
         return response.data.data[0].url
     } catch (e) {
         return `❌ OpenAI Response Error: ${e.response.data.error.message}`
@@ -68,7 +68,6 @@ const getDalleResponse = async (clientText) => {
 }
 
 const commands = (client, message) => {
-    console.log(message)
     const phoneNumber = message.from
     getDavinciResponse(phoneNumber, message.text).then((response) => {
         client.sendText(phoneNumber, response)
@@ -80,24 +79,24 @@ const commands = (client, message) => {
     //     clearContex: "/cc"
     // }
 
-    // let firstWord = message.text.substring(0, message.text.indexOf(" "));
-    // // const phoneNumber = message.from === process.env.PHONE_NUMBER ? message.to : message.from;
-    // const phoneNumber = message.from;
+    // let firstWord = message.text.substring(0, message.text.indexOf(" "))
+    // // const phoneNumber = message.from === process.env.PHONE_NUMBER ? message.to : message.from
+    // const phoneNumber = message.from
     // switch (firstWord) {
     //     case iaCommands.clearContex:
-    //         contextMap.delete(phoneNumber);
-    //         client.sendText(phoneNumber, 'Context deleted :)');
-    //         break;
+    //         contextMap.delete(phoneNumber)
+    //         client.sendText(phoneNumber, 'Context deleted :)')
+    //         break
 
     //     case iaCommands.davinci3:
-    //         const question = message.text.substring(message.text.indexOf(" "));
+    //         const question = message.text.substring(message.text.indexOf(" "))
     //         getDavinciResponse(phoneNumber, question).then((response) => {
     //             client.sendText(phoneNumber, response)
     //         })
-    //         break;
+    //         break
 
     //     case iaCommands.dalle:
-    //         const imgDescription = message.text.substring(message.text.indexOf(" "));
+    //         const imgDescription = message.text.substring(message.text.indexOf(" "))
     //         getDalleResponse(imgDescription, message).then((imgUrl) => {
     //             client.sendImage(
     //                 phoneNumber,
@@ -106,18 +105,20 @@ const commands = (client, message) => {
     //                 'Imagem gerada pela IA DALL-E 🤖'
     //             )
     //         })
-    //         break;
+    //         break
 
     //     // default:
-    //     //     const q = message.text;
+    //     //     const q = message.text
     //     //     getDavinciResponse(phoneNumber, q).then((response) => {
     //     //         client.sendText(phoneNumber, response)
     //     //     })
-    //     //     break;
+    //     //     break
     // }
 }
 
 async function start(client) {
-    // client.onAnyMessage((message) => commands(client, message));
-    client.onAnyMessage((message) => console.log(message));
+    client.onAnyMessage((message) => {
+        console.log(message)
+        commands(client, message)
+    })
 }
