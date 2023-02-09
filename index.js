@@ -83,12 +83,12 @@ const commands = (client, message) => {
             client.sendText(phoneNumber, 'Context deleted :)');
             break;
 
-        case iaCommands.davinci3:
-            const question = message.text.substring(message.text.indexOf(" "));
-            getDavinciResponse(phoneNumber, question).then((response) => {
-                client.sendText(phoneNumber, response)
-            })
-            break;
+        // case iaCommands.davinci3:
+        //     const question = message.text.substring(message.text.indexOf(" "));
+        //     getDavinciResponse(phoneNumber, question).then((response) => {
+        //         client.sendText(phoneNumber, response)
+        //     })
+        //     break;
 
         case iaCommands.dalle:
             const imgDescription = message.text.substring(message.text.indexOf(" "));
@@ -102,12 +102,12 @@ const commands = (client, message) => {
             })
             break;
 
-        // default:
-        //     const question = message.text;
-        //     getDavinciResponse(phoneNumber, question).then((response) => {
-        //         client.sendText(phoneNumber, response)
-        //     })
-        //     break;
+        default:
+            const question = message.text;
+            getDavinciResponse(phoneNumber, question).then((response) => {
+                client.sendText(phoneNumber, response)
+            })
+            break;
     }
 }
 
