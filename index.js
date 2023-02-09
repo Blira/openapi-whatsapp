@@ -69,6 +69,7 @@ const getDalleResponse = async (clientText) => {
 
 const commands = (client, message) => {
     console.log(message)
+    const phoneNumber = message.from
     getDavinciResponse(phoneNumber, message.text).then((response) => {
         client.sendText(phoneNumber, response)
     })
