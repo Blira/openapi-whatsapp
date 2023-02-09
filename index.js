@@ -101,6 +101,7 @@ const commands = (client, message) => {
             )
             console.log('SENT')
         })
+        return
     }
 
     getDavinciResponse(phoneNumber, message.text).then((response) => {
