@@ -89,6 +89,17 @@ const commands = (client, message) => {
         client.sendText(phoneNumber, 'Context deleted :)')
         return
     }
+    else if (message.tex.substring(0,5) === '/img ') {
+        const imgDescription = message.text.substring(5)
+        getDalleResponse(imgDescription, message).then((imgUrl) => {
+            client.sendImage(
+                phoneNumber,
+                imgUrl,
+                imgDescription,
+                'Imagem gerada pela IA DALL-E 🤖'
+            )
+        })
+    }
 
     getDavinciResponse(phoneNumber, message.text).then((response) => {
 
