@@ -69,47 +69,51 @@ const getDalleResponse = async (clientText) => {
 
 const commands = (client, message) => {
     console.log(message)
-    const iaCommands = {
-        davinci3: "/bot",
-        dalle: "/img",
-        clearContex: "/cc"
-    }
+    getDavinciResponse(phoneNumber, message.text).then((response) => {
+        client.sendText(phoneNumber, response)
+    })
 
-    let firstWord = message.text.substring(0, message.text.indexOf(" "));
-    // const phoneNumber = message.from === process.env.PHONE_NUMBER ? message.to : message.from;
-    const phoneNumber = message.from;
-    switch (firstWord) {
-        case iaCommands.clearContex:
-            contextMap.delete(phoneNumber);
-            client.sendText(phoneNumber, 'Context deleted :)');
-            break;
+    // const iaCommands = {
+    //     davinci3: "/bot",
+    //     dalle: "/img",
+    //     clearContex: "/cc"
+    // }
 
-        case iaCommands.davinci3:
-            const question = message.text.substring(message.text.indexOf(" "));
-            getDavinciResponse(phoneNumber, question).then((response) => {
-                client.sendText(phoneNumber, response)
-            })
-            break;
+    // let firstWord = message.text.substring(0, message.text.indexOf(" "));
+    // // const phoneNumber = message.from === process.env.PHONE_NUMBER ? message.to : message.from;
+    // const phoneNumber = message.from;
+    // switch (firstWord) {
+    //     case iaCommands.clearContex:
+    //         contextMap.delete(phoneNumber);
+    //         client.sendText(phoneNumber, 'Context deleted :)');
+    //         break;
 
-        case iaCommands.dalle:
-            const imgDescription = message.text.substring(message.text.indexOf(" "));
-            getDalleResponse(imgDescription, message).then((imgUrl) => {
-                client.sendImage(
-                    phoneNumber,
-                    imgUrl,
-                    imgDescription,
-                    'Imagem gerada pela IA DALL-E 🤖'
-                )
-            })
-            break;
+    //     case iaCommands.davinci3:
+    //         const question = message.text.substring(message.text.indexOf(" "));
+    //         getDavinciResponse(phoneNumber, question).then((response) => {
+    //             client.sendText(phoneNumber, response)
+    //         })
+    //         break;
 
-        // default:
-        //     const q = message.text;
-        //     getDavinciResponse(phoneNumber, q).then((response) => {
-        //         client.sendText(phoneNumber, response)
-        //     })
-        //     break;
-    }
+    //     case iaCommands.dalle:
+    //         const imgDescription = message.text.substring(message.text.indexOf(" "));
+    //         getDalleResponse(imgDescription, message).then((imgUrl) => {
+    //             client.sendImage(
+    //                 phoneNumber,
+    //                 imgUrl,
+    //                 imgDescription,
+    //                 'Imagem gerada pela IA DALL-E 🤖'
+    //             )
+    //         })
+    //         break;
+
+    //     // default:
+    //     //     const q = message.text;
+    //     //     getDavinciResponse(phoneNumber, q).then((response) => {
+    //     //         client.sendText(phoneNumber, response)
+    //     //     })
+    //     //     break;
+    // }
 }
 
 async function start(client) {
