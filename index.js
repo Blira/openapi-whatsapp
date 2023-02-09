@@ -135,7 +135,7 @@ const commands = (client, message) => {
 }
 
 async function start(client) {
-    client.onAnyMessage((message) => {
+    client.onMessage((message) => {
         console.log(message)
         //message.from === '558197929828@c.us' && 
         if (message.type === 'chat' && !message.isGroup) {
