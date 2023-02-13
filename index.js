@@ -4,7 +4,7 @@ import { Configuration, OpenAIApi } from "openai"
 
 dotenv.config()
 
-const defaultContext = `Human: Oi, quem é você?\nAI: Sou uma inteligência artificial, como posso te ajudar?\nHuman: {"vendedor":"andre","vendas":[{"data":"2023-02-01","valor":1200.87},{"data":"2023-02-02","valor":1056.87},{"data":"2023-02-03","valor":1302.87},{"data":"2023-02-04","valor":985.87},{"data":"2023-02-05","valor":1116.87},{"data":"2023-02-06","valor":1250.87},{"data":"2023-02-07","valor":1165.87}],"meta":117983.36,"previsão":456300.11,"clientes":[{"código":"client A","longitude":-47.0416222,"latitude":-22.852148,"previsao":69517.15,"produtos":[{"descrição":"produto A","quantidade":12},{"descrição":"produto B","quantidade":8},{"descrição":"produto C","quantidade":14}]},{"código":"client B","longitude":-47.2466556,"latitude":-22.9138431,"previsao":62276.46,"produtos":[{"descrição":"produto D","quantidade":13},{"descrição":"produto E","quantidade":18},{"descrição":"produto F","quantidade":5}]},{"código":"client C","longitude":-46.8024438,"latitude":-21.9772814,"previsao":45229.63,"produtos":[{"descrição":"produto G","quantidade":6},{"descrição":"produto H","quantidade":9},{"descrição":"produto I","quantidade":8}]}],"detalhes":"https://metabase.n3urons.com/public/dashboard/6cd3265e-ffc5-4d27-b1e1-8891959a2a05"}`
+const defaultContext = `Human: Oi, quem é você?\nISA: Sou uma inteligência artificial, como posso te ajudar?\nHuman: {"vendedor":"andre","vendas":[{"data":"2023-02-01","valor":1200.87},{"data":"2023-02-02","valor":1056.87},{"data":"2023-02-03","valor":1302.87},{"data":"2023-02-04","valor":985.87},{"data":"2023-02-05","valor":1116.87},{"data":"2023-02-06","valor":1250.87},{"data":"2023-02-07","valor":1165.87}],"meta":117983.36,"previsão":456300.11,"clientes":[{"código":"client A","longitude":-47.0416222,"latitude":-22.852148,"previsao":69517.15,"produtos":[{"descrição":"produto A","quantidade":12},{"descrição":"produto B","quantidade":8},{"descrição":"produto C","quantidade":14}]},{"código":"client B","longitude":-47.2466556,"latitude":-22.9138431,"previsao":62276.46,"produtos":[{"descrição":"produto D","quantidade":13},{"descrição":"produto E","quantidade":18},{"descrição":"produto F","quantidade":5}]},{"código":"client C","longitude":-46.8024438,"latitude":-21.9772814,"previsao":45229.63,"produtos":[{"descrição":"produto G","quantidade":6},{"descrição":"produto H","quantidade":9},{"descrição":"produto I","quantidade":8}]}],"detalhes":"https://metabase.n3urons.com/public/dashboard/6cd3265e-ffc5-4d27-b1e1-8891959a2a05"}`
 
 const contextMap = new Map([])
 
@@ -26,7 +26,7 @@ const openai = new OpenAIApi(configuration)
 
 const getDavinciResponse = async (phoneNumber, clientText) => {
     console.log(1)
-    const parsedClientText = `${clientText}\nAI:`
+    const parsedClientText = `${clientText}\nISA:`
     console.log(2)
     const contextWithClientText = `${contextMap.get(phoneNumber) || defaultContext + "\nHuman: "}${parsedClientText}`
     console.log(3)
@@ -35,7 +35,7 @@ const getDavinciResponse = async (phoneNumber, clientText) => {
         prompt: contextWithClientText,
         temperature: 1,
         max_tokens: 1024,
-        stop: [" Human:", " AI:"],
+        stop: [" Human:", " ISA:"],
     }
 
     console.log(4)
