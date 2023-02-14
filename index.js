@@ -28,11 +28,8 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration)
 
 const getDavinciResponse = async (phoneNumber, clientText) => {
-    console.log(1)
     const parsedClientText = `${clientText}\nISA:`
-    console.log(2)
     const contextWithClientText = `${contextMap.get(phoneNumber) || defaultContext + "\nHuman: "}${parsedClientText}`
-    console.log(3)
     const options = {
         model: "text-davinci-003",
         prompt: contextWithClientText,
@@ -41,27 +38,16 @@ const getDavinciResponse = async (phoneNumber, clientText) => {
         stop: [" Human:", " ISA:"],
     }
 
-    console.log(4)
     try {
-        console.log(5)
         const response = await openai.createCompletion(options)
-        console.log(6)
         let apiTextResponse = ""
-        console.log(7)
-        console.log(response.data)
-        console.log(8)
         response.data.choices.forEach(({ text }) => {
             apiTextResponse += text
         })
-        console.log(9)
         const parsedApiTextResponse = `${apiTextResponse.trim()}`
-        console.log(1)
         const newContext = `${contextWithClientText}${parsedApiTextResponse}\nHuman: `
-        console.log(2)
         contextMap.set(phoneNumber, newContext)
-        console.log(3)
         console.log('FINAL CONTEXT --> ', contextMap.get(phoneNumber))
-        console.log(4)
         return parsedApiTextResponse
     } catch (e) {
         return `❌ OpenAI Response Error: ${e.response.data.error.message}`
@@ -107,11 +93,8 @@ const commands = (client, message) => {
     }
 
     getDavinciResponse(phoneNumber, message.text).then((response) => {
-
-        console.log(11)
         client.sendText(phoneNumber, response).then(() =>
-
-            console.log(99)
+            console.log(`SENT TO ${phoneNumber}: ${response}`)
         )
     })
 }
@@ -119,9 +102,7 @@ const commands = (client, message) => {
 async function start(client) {
     client.onMessage(async (message) => {
         console.log(`${message.notifyName}: ${message.text}`)
-        //message.from === '558197929828@c.us' && 
         if (message.type === 'chat' && !message.isGroup) {
-            console.log('OK')
             commands(client, message)
         }
     })
