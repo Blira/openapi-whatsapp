@@ -9,7 +9,7 @@ const defaultContext = `Human: Oi, quem é você?\nISA: Meu nome é ISA, como po
 const contextMap = new Map([])
 
 create({
-    session: 'Open-Ai',
+    session: `${process.env.SESSION || 'Local-AI'}`,
     multidevice: true
 })
     .then((client) => start(client))
@@ -76,7 +76,7 @@ const getDalleResponse = async (clientText) => {
         const response = await openai.createImage(options)
         return response.data.data[0].url
     } catch (e) {
-        return `❌ OpenAI Response Error: ${e.response.data.error.message}`
+        return `❌ OpenAI Error: ${e.response.data.error.message}`
     }
 }
 
@@ -91,7 +91,7 @@ const commands = (client, message) => {
         console.log('IMAGEM')
         const imgDescription = message.text.substring(5)
         console.log('DESC: ', imgDescription)
-        getDalleResponse(imgDescription, message).then((imgUrl) => {
+        getDalleResponse(imgDescription).then((imgUrl) => {
             console.log('GENERATED')
             client.sendImage(
                 phoneNumber,
@@ -111,53 +111,11 @@ const commands = (client, message) => {
             console.log(99)
         )
     })
-
-    // const iaCommands = {
-    //     davinci3: "/bot",
-    //     dalle: "/img",
-    //     clearContex: "/cc"
-    // }
-
-    // let firstWord = message.text.substring(0, message.text.indexOf(" "))
-    // // const phoneNumber = message.from === process.env.PHONE_NUMBER ? message.to : message.from
-    // const phoneNumber = message.from
-    // switch (firstWord) {
-    //     case iaCommands.clearContex:
-    //         contextMap.delete(phoneNumber)
-    //         client.sendText(phoneNumber, 'Context deleted :)')
-    //         break
-
-    //     case iaCommands.davinci3:
-    //         const question = message.text.substring(message.text.indexOf(" "))
-    //         getDavinciResponse(phoneNumber, question).then((response) => {
-    //             client.sendText(phoneNumber, response)
-    //         })
-    //         break
-
-    //     case iaCommands.dalle:
-    //         const imgDescription = message.text.substring(message.text.indexOf(" "))
-    //         getDalleResponse(imgDescription, message).then((imgUrl) => {
-    //             client.sendImage(
-    //                 phoneNumber,
-    //                 imgUrl,
-    //                 imgDescription,
-    //                 'Imagem gerada pela IA DALL-E 🤖'
-    //             )
-    //         })
-    //         break
-
-    //     // default:
-    //     //     const q = message.text
-    //     //     getDavinciResponse(phoneNumber, q).then((response) => {
-    //     //         client.sendText(phoneNumber, response)
-    //     //     })
-    //     //     break
-    // }
 }
 
 async function start(client) {
-    client.onMessage((message) => {
-        console.log(message)
+    client.onMessage(async (message) => {
+        console.log(`${message.notifyName}: ${message.text}`)
         //message.from === '558197929828@c.us' && 
         if (message.type === 'chat' && !message.isGroup) {
             console.log('OK')
