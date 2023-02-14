@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv'
-import { create } from 'venom-bot'
+import { create, Whatsapp } from 'venom-bot'
 import { Configuration, OpenAIApi } from "openai"
 
 dotenv.config()
@@ -156,10 +156,10 @@ const commands = (client: any, message: any) => {
     // }
 }
 
-async function start(client: any) {
+async function start(client: Whatsapp) {
     client.onMessage((message: any) => {
         console.log(message)
-        //message.from === '558197929828@c.us' && 
+        // message.from === '558197929828@c.us' && 
         if (message.type === 'chat' && !message.isGroup) {
             console.log('OK')
             commands(client, message)
