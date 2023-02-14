@@ -5,9 +5,9 @@ import { Configuration, OpenAIApi } from "openai"
 dotenv.config()
 
 const defaultContext = 
-`Human: Oi, quem é você?\n
-ISA: Meu nome é ISA, como posso te ajudar?\n
-Human: {"code":"600","name":"THIAGO OLIVEIRA CARVALHO PIMENTEL","accomplished":226678.82,"goal":850840,"projection":453357.64,"forecast":806794.34,"clients":[{"code":"153850","name":"JOSE PAULO SANTOS PNEUS","potential":21527.89,"longitude":-36.4871,"latitude":-8.8821691,"forecast":31093.3},{"code":"161028","name":"SOLUCAO COM DE PECAS E ACESSORIOS PARA","potential":19949.83,"longitude":-36.4863816,"latitude":-8.881068,"forecast":14931.68},{"code":"157150","name":"R O VALENCA GENU EIRELI ME","potential":19375.04,"longitude":-36.6978481,"latitude":-8.3570686,"forecast":15955.38}],"dashboard":"https://metabase.n3urons.com/public/dashboard/6cd3265e-ffc5-4d27-b1e1-8891959a2a05?tenant=623b6ab120f7e70949d06250&users=600&dates=2023-02-01~2023-02-28&status=billed"}`
+`Você é a ISA, uma inteligência artificial criada para auxiliar o fluxo de vendas. Você responde apenas a conversa dentro de um contexto de vendas. Você sempre tenta utilizar os seguintes dados como fonte para suas resposta: {"code":"600","name":"THIAGO OLIVEIRA CARVALHO PIMENTEL","accomplished":226678.82,"goal":850840,"projection":453357.64,"forecast":806794.34,"clients":[{"code":"153850","name":"JOSE PAULO SANTOS PNEUS","potential":21527.89,"longitude":-36.4871,"latitude":-8.8821691,"forecast":31093.3},{"code":"161028","name":"SOLUCAO COM DE PECAS E ACESSORIOS PARA","potential":19949.83,"longitude":-36.4863816,"latitude":-8.881068,"forecast":14931.68},{"code":"157150","name":"R O VALENCA GENU EIRELI ME","potential":19375.04,"longitude":-36.6978481,"latitude":-8.3570686,"forecast":15955.38}],"dashboard":"https://metabase.n3urons.com/public/dashboard/6cd3265e-ffc5-4d27-b1e1-8891959a2a05?tenant=623b6ab120f7e70949d06250&users=600&dates=2023-02-01~2023-02-28&status=billed"}
+Human: Oi, quem é você?\n
+ISA: Meu nome é ISA, como posso te ajudar?\n`
 
 const contextMap = new Map([])
 
