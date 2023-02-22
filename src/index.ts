@@ -62,6 +62,7 @@ const commands = (client: Whatsapp, message: any) => {
 }
 
 async function start(client: Whatsapp) {
+    
     client.onMessage(async (message: any) => {
         console.log(`${message.from} - ${message.notifyName}: ${message.text}`)
         if (message.type === 'chat' && !message.isGroup) {
