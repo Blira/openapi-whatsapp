@@ -1,11 +1,12 @@
-import { create, Whatsapp } from 'venom-bot'
 import * as dotenv from 'dotenv'
+import { create, Whatsapp } from 'venom-bot'
 import { Configuration, OpenAIApi } from "openai"
 import { getDalleResponse } from './dalle'
 import { getDavinciResponse } from './davinci'
-import { contextMap } from './context'
-
+import { deleteContext } from './context'
+import { MongoDatabase } from './mongo'
 dotenv.config()
+
 
 
 create({
@@ -29,7 +30,7 @@ const commands = (client: Whatsapp, message: any) => {
     const textPrefix = message.text.substring(0, 5)
     switch (textPrefix) {
         case '/cc':
-            contextMap.delete(phoneNumber)
+            deleteContext(phoneNumber)
             client.sendText(phoneNumber, 'Context deleted :)')
             break;
         case '/img ':
@@ -52,7 +53,6 @@ const commands = (client: Whatsapp, message: any) => {
         default:
             getDavinciResponse({
                 clientText: message.text,
-                contextMap,
                 openAi, phoneNumber
             }).then((response) => {
                 client.sendText(phoneNumber, response)
@@ -62,11 +62,17 @@ const commands = (client: Whatsapp, message: any) => {
 }
 
 async function start(client: Whatsapp) {
-    
-    client.onMessage(async (message: any) => {
-        console.log(`${message.from} - ${message.notifyName}: ${message.text}`)
-        if (message.type === 'chat' && !message.isGroup) {
-            commands(client, message)
-        }
+    MongoDatabase.connect(process.env.MONGO_URI || 'mongodb://localhost:27017').then(() => {
+        console.log('Connected to mongodb')
+        client.onMessage(async (message: any) => {
+            console.log(`${message.from} - ${message.notifyName}: ${message.text}`)
+            if (message.type === 'chat' && !message.isGroup) {
+                commands(client, message)
+            }
+        })
     })
+        .catch(e => {
+            console.log('Could not connect to mongodb')
+            console.error(e)
+        })
 }

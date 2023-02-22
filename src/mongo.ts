@@ -1,30 +1,16 @@
-import { MongoClient, Collection } from 'mongodb'
+import { MongoClient } from 'mongodb'
 
-class Database {
-  private client: MongoClient
-  constructor(uri: string) {
-    this.client = new MongoClient(uri)
-  }
 
-  async connect(): Promise<void> {
-    this.client.connect();
-  }
 
+export const MongoDatabase = {
+  client: null as unknown as MongoClient,
+  uri: null as unknown as string,
+
+  async connect(uri: string): Promise<void> {
+    this.uri = uri;
+    this.client = await MongoClient.connect(uri, {});
+  },
   async disconnect(): Promise<void> {
-    await this.client.close()
-  }
-
-  async getCollection({
-    database,
-    collection,
-  }: {
-    database: string;
-    collection: string;
-  }): Promise<Collection> {
-    return this.client.db(database).collection(collection);
-  }
+    await this.client.close();
+  },
 }
-
-export const MongoDatabase = new Database(process.env.MONGO_URI || 'mongodb://localhost:27017')
-
-

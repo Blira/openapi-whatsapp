@@ -1,14 +1,13 @@
 import { OpenAIApi } from "openai"
-import { defaultContext } from "./context"
+import { getContext, getPrompt, updateContext } from "./context"
 
 
 
-export const getDavinciResponse = async ({ openAi, phoneNumber, clientText, contextMap }: { openAi: OpenAIApi, phoneNumber: any, clientText: any, contextMap: Map<string, string> }) => {
-  const parsedClientText = `${clientText}\nISA:`
-  const contextWithClientText = `${contextMap.get(phoneNumber) || defaultContext + "\nHuman: "}${parsedClientText}`
+export const getDavinciResponse = async ({ openAi, phoneNumber, clientText }: { openAi: OpenAIApi, phoneNumber: any, clientText: any }) => {
+  const prompt = getPrompt({ clientText, phoneNumber })
   const options = {
     model: "text-davinci-003",
-    prompt: contextWithClientText,
+    prompt,
     temperature: 1,
     max_tokens: 1024,
     stop: [" Human:", " ISA:"],
@@ -20,10 +19,10 @@ export const getDavinciResponse = async ({ openAi, phoneNumber, clientText, cont
     response.data.choices.forEach(({ text }) => {
       apiTextResponse += text
     })
+
     const parsedApiTextResponse = `${apiTextResponse.trim()}`
-    const newContext = `${contextWithClientText}${parsedApiTextResponse}\nHuman: `
-    contextMap.set(phoneNumber, newContext)
-    console.log('FINAL CONTEXT --> ', contextMap.get(phoneNumber))
+    updateContext({ parsedApiTextResponse, phoneNumber, prompt })
+    console.log('FINAL CONTEXT --> ', getContext(phoneNumber))
     return parsedApiTextResponse
   } catch (e: any) {
     return `❌ openAi Response Error: ${e.response.data.error.message}`
