@@ -25,6 +25,6 @@ class Database {
   }
 }
 
-export const MongoDatabase = new Database('mongodb+srv://isa-services:WOwo4nUnomW7xVZx@isa-prod.cndvn.mongodb.net')
+export const MongoDatabase = new Database(process.env.MONGO_URI || 'mongodb://localhost:27017')
 
 
