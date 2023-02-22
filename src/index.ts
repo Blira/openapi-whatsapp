@@ -3,10 +3,10 @@ import * as dotenv from 'dotenv'
 import { Configuration, OpenAIApi } from "openai"
 import { getDalleResponse } from './dalle'
 import { getDavinciResponse } from './davinci'
+import { contextMap } from './context'
 
 dotenv.config()
 
-const contextMap: Map<string, string> = new Map([])
 
 create({
     session: `${process.env.SESSION || 'Local-AI'}`,
@@ -59,7 +59,6 @@ const commands = (client: Whatsapp, message: any) => {
             })
             break;
     }
-
 }
 
 async function start(client: Whatsapp) {

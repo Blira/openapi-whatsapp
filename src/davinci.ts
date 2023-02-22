@@ -1,5 +1,5 @@
 import { OpenAIApi } from "openai"
-import { defaultContext } from "./default-context"
+import { defaultContext } from "./context"
 
 
 
