@@ -3,8 +3,8 @@ import { create, Whatsapp } from 'venom-bot'
 import { Configuration, OpenAIApi } from "openai"
 import { getDalleResponse } from './dalle'
 import { getDavinciResponse } from './davinci'
-import { deleteContext } from './context'
 import { MongoDatabase } from './mongo'
+import { AiContext } from './context'
 dotenv.config()
 
 
@@ -30,7 +30,7 @@ const commands = (client: Whatsapp, message: any) => {
     const textPrefix = message.text.substring(0, 5)
     switch (textPrefix) {
         case '/cc':
-            deleteContext(phoneNumber)
+            AiContext.delete(phoneNumber)
             client.sendText(phoneNumber, 'Context deleted :)')
             break;
         case '/img ':

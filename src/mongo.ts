@@ -1,7 +1,5 @@
 import { MongoClient } from 'mongodb'
 
-
-
 export const MongoDatabase = {
   client: null as unknown as MongoClient,
   uri: null as unknown as string,

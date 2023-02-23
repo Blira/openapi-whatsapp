@@ -1,10 +1,8 @@
 import { OpenAIApi } from "openai"
-import { getContext, getPrompt, updateContext } from "./context"
-
-
+import { AiContext } from "./context"
 
 export const getDavinciResponse = async ({ openAi, phoneNumber, clientText }: { openAi: OpenAIApi, phoneNumber: any, clientText: any }) => {
-  const prompt = getPrompt({ clientText, phoneNumber })
+  const prompt = AiContext.getPrompt({ clientText, phoneNumber })
   const options = {
     model: "text-davinci-003",
     prompt,
@@ -21,8 +19,8 @@ export const getDavinciResponse = async ({ openAi, phoneNumber, clientText }: { 
     })
 
     const parsedApiTextResponse = `${apiTextResponse.trim()}`
-    updateContext({ parsedApiTextResponse, phoneNumber, prompt })
-    console.log('FINAL CONTEXT --> ', getContext(phoneNumber))
+    AiContext.update({ parsedApiTextResponse, phoneNumber, prompt })
+    console.log('FINAL CONTEXT --> ', AiContext.get(phoneNumber))
     return parsedApiTextResponse
   } catch (e: any) {
     return `❌ openAi Response Error: ${e.response.data.error.message}`
