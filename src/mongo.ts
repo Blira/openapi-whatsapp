@@ -11,4 +11,10 @@ export const MongoDatabase = {
   async disconnect(): Promise<void> {
     await this.client.close();
   },
+  async find() {
+    return this.client.db('623b6ab120f7e70949d06250').collection('user-context').findOne({ code: '551' })
+  },
+  async findPhoneNumber(phoneNumber: string) {
+    return this.client.db('e3-base').collection('user').findOne({ phoneNumber })
+  },
 }

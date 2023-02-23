@@ -2,10 +2,10 @@ import { OpenAIApi } from "openai"
 import { AiContext } from "./context"
 
 export const getDavinciResponse = async ({ openAi, phoneNumber, clientText }: { openAi: OpenAIApi, phoneNumber: any, clientText: any }) => {
-  const prompt = AiContext.getPrompt({ clientText, phoneNumber })
+  const { prefix, prompt } = await AiContext.getPrompt({ clientText, phoneNumber })
   const options = {
     model: "text-davinci-003",
-    prompt,
+    prompt: `${prefix} ${prompt}`,
     temperature: 1,
     max_tokens: 1024,
     stop: [" Human:", " ISA:"],

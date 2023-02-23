@@ -65,7 +65,15 @@ async function start(client: Whatsapp) {
     MongoDatabase.connect(process.env.MONGO_URI || 'mongodb://localhost:27017').then(() => {
         console.log('Connected to mongodb')
         client.onMessage(async (message: any) => {
-            console.log(`${message.from} - ${message.notifyName}: ${message.text}`)
+            console.log(message)
+            const phoneNumber = message.from.substring(0, 12)
+            const user = await MongoDatabase.findPhoneNumber(phoneNumber)
+            console.log(user)
+            if (!user) {
+                client.sendText(message.from, 'PHONE NOT FOUND')
+                return
+            }
+            console.log(`${phoneNumber} - ${message.notifyName}: ${message.text}`)
             if (message.type === 'chat' && !message.isGroup) {
                 commands(client, message)
             }
