@@ -70,7 +70,7 @@ async function start(client: Whatsapp) {
             const user = await MongoDatabase.findPhoneNumber(phoneNumber)
             console.log(user)
             if (!user) {
-                client.sendText(message.from, 'PHONE NOT FOUND')
+                client.sendText(message.from, 'Olá, esse número não está habilitado para interagir comigo.')
                 return
             }
             console.log(`${phoneNumber} - ${message.notifyName}: ${message.text}`)
