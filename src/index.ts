@@ -30,26 +30,25 @@ const configuration = new Configuration({
 
 const openAi = new OpenAIApi(configuration)
 
-const commands = (client: Whatsapp, message: any) => {
-    const phoneNumber: string = message.from
-    const textPrefix = message.text.substring(0, 5)
+const commands = ({ client, text, whatsappPhoneNumber }: { client: Whatsapp, text: string, whatsappPhoneNumber: string }) => {
+    const textPrefix = text.substring(0, 5)
     switch (textPrefix) {
         case '/cc':
-            AiContext.delete(phoneNumber)
-            client.sendText(phoneNumber, 'Context deleted :)')
+            AiContext.delete(whatsappPhoneNumber)
+            client.sendText(whatsappPhoneNumber, 'Context deleted :)')
             break;
         case '/img ':
-            const imgDescription: string = message.text.substring(5)
+            const imgDescription: string = text.substring(5)
             getDalleResponse({
                 clientText: imgDescription,
                 openAi
             }).then((imgUrl) => {
                 if (!imgUrl) {
-                    client.sendText(phoneNumber, 'Could not generate image :(')
+                    client.sendText(whatsappPhoneNumber, 'Could not generate image :(')
                     return
                 }
                 client.sendImage(
-                    phoneNumber,
+                    whatsappPhoneNumber,
                     imgUrl,
                     imgDescription,
                 )
@@ -57,22 +56,25 @@ const commands = (client: Whatsapp, message: any) => {
             break;
         default:
             getDavinciResponse({
-                clientText: message.text,
-                openAi, phoneNumber
+                clientText: text,
+                openAi,
+                phoneNumber: whatsappPhoneNumber
             }).then((response) => {
-                client.sendText(phoneNumber, response)
+                client.sendText(whatsappPhoneNumber, response)
             })
             break;
     }
 }
 
-const checkJob = async ({ transcribeClient, currentJobName, s3, bucket, key }:
+const checkJob = async ({ transcribeClient, currentJobName, s3, bucket, key, client, whatsappPhoneNumber }:
     {
         transcribeClient: TranscribeClient,
         currentJobName: string,
         s3: S3Client,
         bucket: string,
-        key: string
+        key: string,
+        client: Whatsapp,
+        whatsappPhoneNumber: string
     }) => {
     console.log('CHECKING...')
     const data = await transcribeClient.send(
@@ -87,6 +89,11 @@ const checkJob = async ({ transcribeClient, currentJobName, s3, bucket, key }:
 
         const text = await getTextFromS3({ s3, bucket, key })
         console.log('OPAAA: ', text)
+        commands({
+            client,
+            text,
+            whatsappPhoneNumber
+        })
         return
     }
 
@@ -96,7 +103,7 @@ const checkJob = async ({ transcribeClient, currentJobName, s3, bucket, key }:
         return
     }
     setTimeout(() => {
-        checkJob({ transcribeClient, currentJobName, bucket, key, s3 })
+        checkJob({ transcribeClient, currentJobName, bucket, key, s3, client, whatsappPhoneNumber })
     }, 3000);
 }
 
@@ -186,9 +193,9 @@ async function start(client: Whatsapp) {
                 console.log("Success - put", data);
 
                 const jsonFileName = `${currentJobName}.json`
-                checkJob({ currentJobName, transcribeClient, bucket: BUCKET, key: jsonFileName, s3 })
+                checkJob({ currentJobName, transcribeClient, bucket: BUCKET, key: jsonFileName, s3, whatsappPhoneNumber: message.from, client })
 
-                commands(client, message)
+
             }
         })
     })
