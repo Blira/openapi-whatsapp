@@ -8,6 +8,7 @@ import { AiContext } from './context'
 
 import fs from 'fs'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { TranscribeClient, StartTranscriptionJobCommand, ListTranscriptionJobsCommand } from "@aws-sdk/client-transcribe"
 
 
 dotenv.config()
@@ -65,12 +66,43 @@ const commands = (client: Whatsapp, message: any) => {
     }
 }
 
+const checkJob = async ({ transcribeClient, currentJobName }: { transcribeClient: TranscribeClient, currentJobName: string }) => {
+    console.log('CHECKING...')
+    const data = await transcribeClient.send(
+        new ListTranscriptionJobsCommand({ JobNameContains: currentJobName })
+    );
+    const currentJob = data.TranscriptionJobSummaries?.find(x => x.TranscriptionJobName === currentJobName);
+    if (!currentJob) {
+        return
+    }
+    if (currentJob.TranscriptionJobStatus === 'COMPLETED') {
+        console.log('DONE!')
+        return
+    }
+
+
+    if (currentJob.TranscriptionJobStatus === 'FAILED') {
+        console.log('TRANSCRIPTION FAILED!  :( ')
+        return
+    }
+    setTimeout(() => {
+        checkJob({ transcribeClient, currentJobName })
+    }, 3000);
+}
+
+
 async function start(client: Whatsapp) {
     MongoDatabase.connect(process.env.MONGO_URI || 'mongodb://localhost:27017').then(() => {
         console.log('Connected to mongodb')
 
-        const s3 = new S3Client({ region: "us-east-1" })
+
+        const REGION = "us-east-1"
+
+        const s3 = new S3Client({ region: REGION })
         console.log('S3 client created')
+
+        const transcribeClient = new TranscribeClient({ region: REGION })
+        console.log('Transcribe client created')
 
         client.onMessage(async (message: any) => {
             console.log(message)
@@ -89,23 +121,48 @@ async function start(client: Whatsapp) {
 
             if (message.type === 'ptt' && !message.isGroup) {
                 console.log('******* AUDIO *******')
+                const audioFileName = `${phoneNumber}-${Date.now()}`
+                const audioFileNameWithExtension = `${audioFileName}.wav`
                 try {
-                    const audioFileName = `${phoneNumber}-${Date.now()}.wav`
                     const decryptedAudio = await client.decryptFile(message)
                     console.log('DECRYPTED')
-                    fs.writeFileSync(audioFileName, decryptedAudio)
+                    fs.writeFileSync(audioFileNameWithExtension, decryptedAudio)
                     console.log('WROTE')
 
                     await s3.send(new PutObjectCommand({
                         Bucket: 'isa-audio',
-                        Key: audioFileName,
-                        Body: fs.readFileSync(audioFileName)
+                        Key: audioFileNameWithExtension,
+                        Body: fs.readFileSync(audioFileNameWithExtension)
+
                     }))
                     console.log('File uploaded :)')
                 } catch (error) {
                     console.log('ERROR: ')
                     console.log(error)
                 }
+                // Create an Amazon Transcribe service client object.
+                // ----------------------- CLIENT END
+
+                const currentJobName = audioFileName
+                // Set the parameters
+                const params = {
+                    TranscriptionJobName: currentJobName,
+                    LanguageCode: "pt-BR",
+                    MediaFormat: "ogg",
+                    Media: {
+                        MediaFileUri: `https://isa-audio.s3.amazonaws.com/${audioFileNameWithExtension}`,
+                    },
+                    OutputBucketName: "isa-audio"
+                };
+
+                const data = await transcribeClient.send(
+                    new StartTranscriptionJobCommand(params)
+                );
+
+                console.log("Success - put", data);
+
+                checkJob({ currentJobName, transcribeClient })
+
 
                 // commands(client, message)
             }
