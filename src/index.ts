@@ -7,7 +7,7 @@ import { MongoDatabase } from './mongo'
 import { AiContext } from './context'
 
 import fs from 'fs'
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
 import { TranscribeClient, StartTranscriptionJobCommand, ListTranscriptionJobsCommand } from "@aws-sdk/client-transcribe"
 
 
@@ -66,7 +66,14 @@ const commands = (client: Whatsapp, message: any) => {
     }
 }
 
-const checkJob = async ({ transcribeClient, currentJobName }: { transcribeClient: TranscribeClient, currentJobName: string }) => {
+const checkJob = async ({ transcribeClient, currentJobName, s3, bucket, key }:
+    {
+        transcribeClient: TranscribeClient,
+        currentJobName: string,
+        s3: S3Client,
+        bucket: string,
+        key: string
+    }) => {
     console.log('CHECKING...')
     const data = await transcribeClient.send(
         new ListTranscriptionJobsCommand({ JobNameContains: currentJobName })
@@ -77,6 +84,9 @@ const checkJob = async ({ transcribeClient, currentJobName }: { transcribeClient
     }
     if (currentJob.TranscriptionJobStatus === 'COMPLETED') {
         console.log('DONE!')
+
+        const text = await getTextFromS3({ s3, bucket, key })
+        console.log('OPAAA: ', text)
         return
     }
 
@@ -86,17 +96,31 @@ const checkJob = async ({ transcribeClient, currentJobName }: { transcribeClient
         return
     }
     setTimeout(() => {
-        checkJob({ transcribeClient, currentJobName })
+        checkJob({ transcribeClient, currentJobName, bucket, key, s3 })
     }, 3000);
 }
 
+const getTextFromS3 = async ({ s3, bucket, key }: { s3: S3Client, bucket: string, key: string }) => {
+    const data = await s3.send(new GetObjectCommand({
+        Bucket: bucket,
+        Key: key
+    }))
+    const stringJson = await data.Body?.transformToString()
+    if (!stringJson) {
+        console.log('STRING NOT FOUND')
+        return
+    }
+    const json = JSON.parse(stringJson)
+    const text = json.results.transcripts[0].transcript
+    return text
+}
 
 async function start(client: Whatsapp) {
     MongoDatabase.connect(process.env.MONGO_URI || 'mongodb://localhost:27017').then(() => {
         console.log('Connected to mongodb')
 
-
         const REGION = "us-east-1"
+        const BUCKET = 'isa-audio'
 
         const s3 = new S3Client({ region: REGION })
         console.log('S3 client created')
@@ -130,7 +154,7 @@ async function start(client: Whatsapp) {
                     console.log('WROTE')
 
                     await s3.send(new PutObjectCommand({
-                        Bucket: 'isa-audio',
+                        Bucket: BUCKET,
                         Key: audioFileNameWithExtension,
                         Body: fs.readFileSync(audioFileNameWithExtension)
 
@@ -152,7 +176,7 @@ async function start(client: Whatsapp) {
                     Media: {
                         MediaFileUri: `https://isa-audio.s3.amazonaws.com/${audioFileNameWithExtension}`,
                     },
-                    OutputBucketName: "isa-audio"
+                    OutputBucketName: BUCKET
                 };
 
                 const data = await transcribeClient.send(
@@ -161,10 +185,10 @@ async function start(client: Whatsapp) {
 
                 console.log("Success - put", data);
 
-                checkJob({ currentJobName, transcribeClient })
+                const jsonFileName = `${currentJobName}.json`
+                checkJob({ currentJobName, transcribeClient, bucket: BUCKET, key: jsonFileName, s3 })
 
-
-                // commands(client, message)
+                commands(client, message)
             }
         })
     })
