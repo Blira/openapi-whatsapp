@@ -31,40 +31,44 @@ const openAi = new OpenAIApi(configuration)
 async function start(client: Whatsapp) {
     ContextDatabase.connect(process.env.MONGO_URI || 'mongodb://localhost:27017').then(() => {
         console.log('Connected to database')
+        try {
+            const s3 = new S3Client({ region: REGION })
+            console.log('S3 client created')
 
-        const s3 = new S3Client({ region: REGION })
-        console.log('S3 client created')
+            const transcribeClient = new TranscribeClient({ region: REGION })
+            console.log('Transcribe client created')
 
-        const transcribeClient = new TranscribeClient({ region: REGION })
-        console.log('Transcribe client created')
-
-        client.onMessage(async (message: any) => {
-            const phoneNumber = message.from.substring(0, 12)
-            const user = await ContextDatabase.findPhoneNumber(phoneNumber)
-            if (!user) {
-                client.sendText(message.from, 'Desculpe, esse número não está habilitado para interagir comigo.')
-                return
-            }
-            console.log(`${phoneNumber} - ${message.notifyName}: ${message.text}`)
-
-            if (!message.isGroup) {
-                switch (message.type) {
-                    case 'chat':
-                        commands({ client, text: message.text, whatsappPhoneNumber: message.from, openAi })
-                        break;
-
-                    case 'ptt':
-                        handleAudio({ bucket: BUCKET, client, message, openAi, phoneNumber, s3, transcribeClient })
-                        break;
-
-                    default:
-                        break;
+            client.onMessage(async (message: any) => {
+                const phoneNumber = message.from.substring(0, 12)
+                const user = await ContextDatabase.findPhoneNumber(phoneNumber)
+                if (!user) {
+                    client.sendText(message.from, 'Desculpe, esse número não está habilitado para interagir comigo.')
+                    return
                 }
-            }
-        })
+                console.log(`${phoneNumber} - ${message.notifyName}: ${message.text}`)
+
+                if (!message.isGroup) {
+                    switch (message.type) {
+                        case 'chat':
+                            commands({ client, text: message.text, whatsappPhoneNumber: message.from, openAi })
+                            break;
+
+                        case 'ptt':
+                            handleAudio({ bucket: BUCKET, client, message, openAi, phoneNumber, s3, transcribeClient })
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+            })
+        } catch (error) {
+            console.log('ERROR')
+            console.error(error)
+        }
     })
         .catch(e => {
-            console.log('Could not connect to mongodb')
+            console.log('Could not connect to context database')
             console.error(e)
         })
 }
