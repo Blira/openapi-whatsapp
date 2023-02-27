@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv'
 import { create, Whatsapp } from 'venom-bot'
 import { Configuration, OpenAIApi } from "openai"
-import { MongoDatabase } from './context/mongo'
+import { ContextDatabase } from './context/mongo'
 import { S3Client } from '@aws-sdk/client-s3'
 import { TranscribeClient } from "@aws-sdk/client-transcribe"
 import { commands } from './functions/commands'
@@ -29,8 +29,8 @@ const configuration = new Configuration({
 const openAi = new OpenAIApi(configuration)
 
 async function start(client: Whatsapp) {
-    MongoDatabase.connect(process.env.MONGO_URI || 'mongodb://localhost:27017').then(() => {
-        console.log('Connected to mongodb')
+    ContextDatabase.connect(process.env.MONGO_URI || 'mongodb://localhost:27017').then(() => {
+        console.log('Connected to database')
 
         const s3 = new S3Client({ region: REGION })
         console.log('S3 client created')
@@ -40,7 +40,7 @@ async function start(client: Whatsapp) {
 
         client.onMessage(async (message: any) => {
             const phoneNumber = message.from.substring(0, 12)
-            const user = await MongoDatabase.findPhoneNumber(phoneNumber)
+            const user = await ContextDatabase.findPhoneNumber(phoneNumber)
             if (!user) {
                 client.sendText(message.from, 'Desculpe, esse número não está habilitado para interagir comigo.')
                 return
