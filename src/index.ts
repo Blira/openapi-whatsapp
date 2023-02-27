@@ -5,8 +5,12 @@ import { getDalleResponse } from './dalle'
 import { getDavinciResponse } from './davinci'
 import { MongoDatabase } from './mongo'
 import { AiContext } from './context'
-dotenv.config()
 
+import fs from 'fs'
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+
+
+dotenv.config()
 
 
 create({
@@ -64,18 +68,46 @@ const commands = (client: Whatsapp, message: any) => {
 async function start(client: Whatsapp) {
     MongoDatabase.connect(process.env.MONGO_URI || 'mongodb://localhost:27017').then(() => {
         console.log('Connected to mongodb')
+
+        const s3 = new S3Client({ region: "us-east-1" })
+        console.log('S3 client created')
+
         client.onMessage(async (message: any) => {
             console.log(message)
+
             const phoneNumber = message.from.substring(0, 12)
             const user = await MongoDatabase.findPhoneNumber(phoneNumber)
-            console.log(user)
+            // console.log(user)
             if (!user) {
                 client.sendText(message.from, 'Desculpe, esse número não está habilitado para interagir comigo.')
                 return
             }
             console.log(`${phoneNumber} - ${message.notifyName}: ${message.text}`)
-            if (message.type === 'chat' && !message.isGroup) {
-                commands(client, message)
+            // if (message.type === 'chat' && !message.isGroup) {
+            //     commands(client, message)
+            // }
+
+            if (message.type === 'ptt' && !message.isGroup) {
+                console.log('******* AUDIO *******')
+                try {
+                    const audioFileName = `${phoneNumber}-${Date.now()}.wav`
+                    const decryptedAudio = await client.decryptFile(message)
+                    console.log('DECRYPTED')
+                    fs.writeFileSync(audioFileName, decryptedAudio)
+                    console.log('WROTE')
+
+                    await s3.send(new PutObjectCommand({
+                        Bucket: 'isa-audio',
+                        Key: audioFileName,
+                        Body: fs.readFileSync(audioFileName)
+                    }))
+                    console.log('File uploaded :)')
+                } catch (error) {
+                    console.log('ERROR: ')
+                    console.log(error)
+                }
+
+                // commands(client, message)
             }
         })
     })
