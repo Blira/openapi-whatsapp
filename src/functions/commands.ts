@@ -1,8 +1,8 @@
 import { OpenAIApi } from "openai";
 import { Whatsapp } from "venom-bot";
-import { AiContext } from "./context";
-import { getDalleResponse } from "./dalle";
-import { getDavinciResponse } from "./davinci";
+import { AiContext } from "../context";
+import { getDalleResponse } from "../ai-models/dalle";
+import { getDavinciResponse } from "../ai-models/davinci";
 
 export const commands = ({ client, text, whatsappPhoneNumber, openAi }: { client: Whatsapp, text: string, whatsappPhoneNumber: string, openAi: OpenAIApi }) => {
   const textPrefix = text.substring(0, 5)

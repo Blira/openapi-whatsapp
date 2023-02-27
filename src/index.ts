@@ -1,11 +1,11 @@
 import * as dotenv from 'dotenv'
 import { create, Whatsapp } from 'venom-bot'
 import { Configuration, OpenAIApi } from "openai"
-import { MongoDatabase } from './mongo'
+import { MongoDatabase } from './context/mongo'
 import { S3Client } from '@aws-sdk/client-s3'
 import { TranscribeClient } from "@aws-sdk/client-transcribe"
-import { commands } from './commands'
-import { handleAudio } from './handleAudio'
+import { commands } from './functions/commands'
+import { handleAudio } from './functions/handleAudio'
 
 dotenv.config()
 
