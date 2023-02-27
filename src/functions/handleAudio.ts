@@ -30,6 +30,7 @@ export const handleAudio = async ({ phoneNumber, client, message, s3, bucket, tr
       Body: fs.readFileSync(audioFileNameWithExtension)
 
     }))
+    fs.unlinkSync(audioFileNameWithExtension)
     console.log('File uploaded :)')
   } catch (error) {
     console.log('ERROR: ')

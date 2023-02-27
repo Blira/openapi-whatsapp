@@ -1,4 +1,4 @@
-import { MongoDatabase } from './mongo'
+import { ContextDatabase } from './mongo'
 
 class Context {
   private contextMap: Map<string, string> = new Map([])
@@ -11,7 +11,7 @@ class Context {
 
 
   getData = () => {
-    return MongoDatabase.find();
+    return ContextDatabase.find();
   }
 
   getPrompt = async ({ clientText, phoneNumber }: { clientText: string, phoneNumber: string }) => {

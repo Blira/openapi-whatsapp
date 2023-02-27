@@ -1,6 +1,6 @@
 import { OpenAIApi } from "openai";
 import { Whatsapp } from "venom-bot";
-import { AiContext } from "../context";
+import { AiContext } from "../context/context";
 import { getDalleResponse } from "../ai-models/dalle";
 import { getDavinciResponse } from "../ai-models/davinci";
 

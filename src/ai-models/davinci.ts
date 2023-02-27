@@ -1,5 +1,5 @@
 import { OpenAIApi } from "openai"
-import { AiContext } from "../context"
+import { AiContext } from "../context/context"
 
 export const getDavinciResponse = async ({ openAi, phoneNumber, clientText }: { openAi: OpenAIApi, phoneNumber: any, clientText: any }) => {
   const { prefix, prompt } = await AiContext.getPrompt({ clientText, phoneNumber })
