@@ -146,9 +146,9 @@ async function start(client: Whatsapp) {
                 return
             }
             console.log(`${phoneNumber} - ${message.notifyName}: ${message.text}`)
-            // if (message.type === 'chat' && !message.isGroup) {
-            //     commands(client, message)
-            // }
+            if (message.type === 'chat' && !message.isGroup) {
+                commands({ client, text: message.text, whatsappPhoneNumber: message.from })
+            }
 
             if (message.type === 'ptt' && !message.isGroup) {
                 console.log('******* AUDIO *******')
