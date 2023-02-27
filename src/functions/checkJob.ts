@@ -3,31 +3,33 @@ import { TranscribeClient, ListTranscriptionJobsCommand } from "@aws-sdk/client-
 import { OpenAIApi } from "openai";
 import { Whatsapp } from "venom-bot";
 import { commands } from "./commands";
+import { deleteFromS3 } from "./deleteFromS3";
 import { getTextFromS3 } from "./getTextFromS3";
 
-export const checkJob = async ({ transcribeClient, currentJobName, s3, bucket, key, client, whatsappPhoneNumber, openAi }:
+export const checkJob = async ({ audioFileName, transcribeClient, fileName, s3, bucket, jsonFileName, client, whatsappPhoneNumber, openAi }:
   {
     transcribeClient: TranscribeClient,
-    currentJobName: string,
+    fileName: string,
+    audioFileName: string,
     s3: S3Client,
     bucket: string,
-    key: string,
+    jsonFileName: string,
     client: Whatsapp,
     whatsappPhoneNumber: string,
     openAi: OpenAIApi
   }) => {
   console.log('CHECKING...')
   const data = await transcribeClient.send(
-    new ListTranscriptionJobsCommand({ JobNameContains: currentJobName })
+    new ListTranscriptionJobsCommand({ JobNameContains: fileName })
   );
-  const currentJob = data.TranscriptionJobSummaries?.find(x => x.TranscriptionJobName === currentJobName);
+  const currentJob = data.TranscriptionJobSummaries?.find(x => x.TranscriptionJobName === fileName);
   if (!currentJob) {
+    console.log('JOB NOT FOUND')
     return
   }
   if (currentJob.TranscriptionJobStatus === 'COMPLETED') {
     console.log('DONE!')
-
-    const text = await getTextFromS3({ s3, bucket, key })
+    const text = await getTextFromS3({ s3, bucket, key: jsonFileName })
     console.log('OPAAA: ', text)
     commands({
       client,
@@ -35,6 +37,8 @@ export const checkJob = async ({ transcribeClient, currentJobName, s3, bucket, k
       whatsappPhoneNumber,
       openAi
     })
+    deleteFromS3({ s3, bucket, key: jsonFileName })
+    deleteFromS3({ s3, bucket, key: audioFileName })
     return
   }
 
@@ -44,6 +48,6 @@ export const checkJob = async ({ transcribeClient, currentJobName, s3, bucket, k
     return
   }
   setTimeout(() => {
-    checkJob({ transcribeClient, currentJobName, bucket, key, s3, client, whatsappPhoneNumber, openAi })
+    checkJob({ audioFileName, transcribeClient, fileName, bucket, jsonFileName, s3, client, whatsappPhoneNumber, openAi })
   }, 3000);
 }

@@ -16,21 +16,22 @@ export const handleAudio = async ({ phoneNumber, client, message, s3, bucket, tr
     bucket: string,
     openAi: OpenAIApi
   }) => {
-  const audioFileName = `${phoneNumber}-${Date.now()}`
-  const audioFileNameWithExtension = `${audioFileName}.wav`
+  const fileName = `${phoneNumber}-${Date.now()}`
+  const audioFileName = `${fileName}.wav`
+  const jsonFileName = `${fileName}.json`
   try {
     const decryptedAudio = await client.decryptFile(message)
     console.log('DECRYPTED')
-    fs.writeFileSync(audioFileNameWithExtension, decryptedAudio)
+    fs.writeFileSync(audioFileName, decryptedAudio)
     console.log('WROTE')
 
     await s3.send(new PutObjectCommand({
       Bucket: bucket,
-      Key: audioFileNameWithExtension,
-      Body: fs.readFileSync(audioFileNameWithExtension)
+      Key: audioFileName,
+      Body: fs.readFileSync(audioFileName)
 
     }))
-    fs.unlinkSync(audioFileNameWithExtension)
+    fs.unlinkSync(audioFileName)
     console.log('File uploaded :)')
   } catch (error) {
     console.log('ERROR: ')
@@ -38,26 +39,19 @@ export const handleAudio = async ({ phoneNumber, client, message, s3, bucket, tr
   }
   // ----------------------- CLIENT END
 
-  const currentJobName = audioFileName
   // Set the parameters
   const params = {
-    TranscriptionJobName: currentJobName,
+    TranscriptionJobName: fileName,
     LanguageCode: "pt-BR",
     MediaFormat: "ogg",
     Media: {
-      MediaFileUri: `https://isa-audio.s3.amazonaws.com/${audioFileNameWithExtension}`,
+      MediaFileUri: `https://isa-audio.s3.amazonaws.com/${audioFileName}`,
     },
     OutputBucketName: bucket
   };
 
-  const data = await transcribeClient.send(
+  await transcribeClient.send(
     new StartTranscriptionJobCommand(params)
   );
-
-  console.log("Success - put", data);
-
-  const jsonFileName = `${currentJobName}.json`
-  checkJob({ currentJobName, transcribeClient, bucket: bucket, key: jsonFileName, s3, whatsappPhoneNumber: message.from, client, openAi })
-
-
+  checkJob({ audioFileName, fileName, transcribeClient, bucket: bucket, jsonFileName, s3, whatsappPhoneNumber: message.from, client, openAi })
 }
