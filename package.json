@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-polly": "^3.279.0",
     "@aws-sdk/client-s3": "^3.279.0",
     "@aws-sdk/client-transcribe": "^3.279.0",
     "dotenv": "^16.0.3",
