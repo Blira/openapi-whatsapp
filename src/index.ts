@@ -43,6 +43,7 @@ async function start(client: Whatsapp) {
             console.log('Polly client created')
 
             client.onMessage(async (message: any) => {
+                console.log(message.from)
                 const phoneNumber = message.from.substring(0, 12)
                 const user = await ContextDatabase.findPhoneNumber(phoneNumber)
                 if (!user) {

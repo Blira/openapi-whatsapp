@@ -9,7 +9,7 @@ export const sendAudio = async ({ pollyClient, client, whatsappPhoneNumber, resp
   const voice = await pollyClient.send(new SynthesizeSpeechCommand({ Text: response, OutputFormat: 'mp3', VoiceId: 'Camila', LanguageCode: 'pt-BR', Engine: 'neural' }))
   const audio = await voice.AudioStream?.transformToByteArray()
   if (audio) {
-    const audioFileName = `${whatsappPhoneNumber}-${Date.now()}`
+    const audioFileName = `${whatsappPhoneNumber}-${Date.now()}.mp3`
     fs.writeFileSync(audioFileName, audio)
     client.sendVoice(whatsappPhoneNumber, audioFileName)
       .catch((e) => {
