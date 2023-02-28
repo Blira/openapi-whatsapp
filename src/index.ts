@@ -49,7 +49,7 @@ async function start(client: Whatsapp) {
                     client.sendText(message.from, 'Desculpe, esse número não está habilitado para interagir comigo.')
                     return
                 }
-                console.log(`${phoneNumber} - ${message.notifyName}: ${message.text}`)
+                // console.log(`${phoneNumber} - ${message.notifyName}: ${message.text}`)
 
                 if (!message.isGroup) {
                     switch (message.type) {
