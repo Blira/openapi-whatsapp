@@ -20,7 +20,7 @@ export const getDavinciResponse = async ({ openAi, phoneNumber, clientText }: { 
 
     const parsedApiTextResponse = `${apiTextResponse.trim()}`
     AiContext.update({ parsedApiTextResponse, phoneNumber, prompt })
-    console.log('FINAL CONTEXT --> ', AiContext.get(phoneNumber))
+    // console.log('FINAL CONTEXT --> ', AiContext.get(phoneNumber))
     return parsedApiTextResponse
   } catch (e: any) {
     return `❌ openAi Response Error: ${e.response.data.error.message}`

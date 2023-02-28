@@ -11,10 +11,7 @@ export const sendAudio = async ({ pollyClient, client, whatsappPhoneNumber, resp
   if (audio) {
     const audioFileName = `${whatsappPhoneNumber}-${Date.now()}`
     fs.writeFileSync(audioFileName, audio)
-    client.sendVoice(whatsappPhoneNumber, audioFileName).
-      then(() => {
-        console.log('yay')
-      })
+    client.sendVoice(whatsappPhoneNumber, audioFileName)
       .catch((e) => {
         console.log(e)
       })

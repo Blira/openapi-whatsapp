@@ -32,7 +32,6 @@ export const checkJob = async ({ audioFileName, transcribeClient, fileName, s3, 
   if (currentJob.TranscriptionJobStatus === 'COMPLETED') {
     console.log('DONE!')
     const text = await getTextFromS3({ s3, bucket, key: jsonFileName })
-    console.log('OPAAA: ', text)
     commands({
       client,
       text,
