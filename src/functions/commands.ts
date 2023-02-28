@@ -3,10 +3,22 @@ import { Whatsapp } from "venom-bot";
 import { AiContext } from "../context/context";
 import { getDalleResponse } from "../ai-models/dalle";
 import { getDavinciResponse } from "../ai-models/davinci";
+import { sendMessage } from "./sendMessage";
+import { PollyClient } from "@aws-sdk/client-polly";
+import { voice } from "../context/voice";
 
-export const commands = ({ client, text, whatsappPhoneNumber, openAi }: { client: Whatsapp, text: string, whatsappPhoneNumber: string, openAi: OpenAIApi }) => {
+export const commands = ({ client, text, whatsappPhoneNumber, openAi, pollyClient }:
+  { client: Whatsapp, text: string, whatsappPhoneNumber: string, openAi: OpenAIApi, pollyClient: PollyClient }) => {
   const textPrefix = text.substring(0, 5)
   switch (textPrefix) {
+    case '/vc':
+      voice.set(whatsappPhoneNumber)
+      client.sendText(whatsappPhoneNumber, 'VOICE RESPONSE ENABLED')
+      break;
+    case '/txt':
+      voice.delete(whatsappPhoneNumber)
+      client.sendText(whatsappPhoneNumber, 'TEXT RESPONSE ENABLED')
+      break;
     case '/cc':
       AiContext.delete(whatsappPhoneNumber)
       client.sendText(whatsappPhoneNumber, 'Context deleted :)')
@@ -34,7 +46,7 @@ export const commands = ({ client, text, whatsappPhoneNumber, openAi }: { client
         openAi,
         phoneNumber: whatsappPhoneNumber
       }).then((response) => {
-        client.sendText(whatsappPhoneNumber, response)
+        sendMessage({ client, response, whatsappPhoneNumber, pollyClient })
       })
       break;
   }

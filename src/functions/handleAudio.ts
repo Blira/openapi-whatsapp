@@ -5,8 +5,9 @@ import { Message, Whatsapp } from "venom-bot"
 import fs from 'fs'
 import { checkJob } from "./checkJob"
 import { OpenAIApi } from "openai"
+import { PollyClient } from "@aws-sdk/client-polly"
 
-export const handleAudio = async ({ phoneNumber, client, message, s3, bucket, transcribeClient, openAi }:
+export const handleAudio = async ({ phoneNumber, client, message, s3, bucket, transcribeClient, openAi, pollyClient }:
   {
     phoneNumber: string,
     client: Whatsapp,
@@ -14,7 +15,8 @@ export const handleAudio = async ({ phoneNumber, client, message, s3, bucket, tr
     s3: S3Client,
     transcribeClient: TranscribeClient,
     bucket: string,
-    openAi: OpenAIApi
+    openAi: OpenAIApi,
+    pollyClient: PollyClient
   }) => {
   const fileName = `${phoneNumber}-${Date.now()}`
   const audioFileName = `${fileName}.wav`
@@ -53,5 +55,5 @@ export const handleAudio = async ({ phoneNumber, client, message, s3, bucket, tr
   await transcribeClient.send(
     new StartTranscriptionJobCommand(params)
   );
-  checkJob({ audioFileName, fileName, transcribeClient, bucket: bucket, jsonFileName, s3, whatsappPhoneNumber: message.from, client, openAi })
+  checkJob({ audioFileName, fileName, transcribeClient, bucket: bucket, jsonFileName, s3, whatsappPhoneNumber: message.from, client, openAi, pollyClient })
 }

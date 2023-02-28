@@ -1,3 +1,4 @@
+import { PollyClient } from "@aws-sdk/client-polly";
 import { S3Client } from "@aws-sdk/client-s3";
 import { TranscribeClient, ListTranscriptionJobsCommand } from "@aws-sdk/client-transcribe";
 import { OpenAIApi } from "openai";
@@ -6,7 +7,7 @@ import { commands } from "./commands";
 import { deleteFromS3 } from "./deleteFromS3";
 import { getTextFromS3 } from "./getTextFromS3";
 
-export const checkJob = async ({ audioFileName, transcribeClient, fileName, s3, bucket, jsonFileName, client, whatsappPhoneNumber, openAi }:
+export const checkJob = async ({ audioFileName, transcribeClient, fileName, s3, bucket, jsonFileName, client, whatsappPhoneNumber, openAi, pollyClient }:
   {
     transcribeClient: TranscribeClient,
     fileName: string,
@@ -16,7 +17,8 @@ export const checkJob = async ({ audioFileName, transcribeClient, fileName, s3, 
     jsonFileName: string,
     client: Whatsapp,
     whatsappPhoneNumber: string,
-    openAi: OpenAIApi
+    openAi: OpenAIApi,
+    pollyClient: PollyClient
   }) => {
   console.log('CHECKING...')
   const data = await transcribeClient.send(
@@ -35,7 +37,8 @@ export const checkJob = async ({ audioFileName, transcribeClient, fileName, s3, 
       client,
       text,
       whatsappPhoneNumber,
-      openAi
+      openAi,
+      pollyClient
     })
     deleteFromS3({ s3, bucket, key: jsonFileName })
     deleteFromS3({ s3, bucket, key: audioFileName })
@@ -48,6 +51,6 @@ export const checkJob = async ({ audioFileName, transcribeClient, fileName, s3, 
     return
   }
   setTimeout(() => {
-    checkJob({ audioFileName, transcribeClient, fileName, bucket, jsonFileName, s3, client, whatsappPhoneNumber, openAi })
+    checkJob({ audioFileName, transcribeClient, fileName, bucket, jsonFileName, s3, client, whatsappPhoneNumber, openAi, pollyClient })
   }, 3000);
 }
