@@ -21,7 +21,7 @@ export const commands = ({ client, text, whatsappPhoneNumber, openAi, pollyClien
       break;
     case '/cc':
       AiContext.delete(whatsappPhoneNumber)
-      client.sendText(whatsappPhoneNumber, 'Context deleted :)')
+      client.sendText(whatsappPhoneNumber, 'CONTEXT DELETED')
       break;
     case '/img ':
       const imgDescription: string = text.substring(5)
